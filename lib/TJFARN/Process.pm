@@ -37,7 +37,7 @@ MYSQL
 		return $rc;
 	}, $uid );
 
-	$tns->finish;
+	return $res ? $tns->finish : $tns->rollback;
 }
 
 1;
