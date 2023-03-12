@@ -17,7 +17,7 @@ const my $passwd   => 'qwerty';
 sub get_dbh {
 	my $dbh = DBI->connect(
 		"DBI:mysql:database=$database;host=$host",
-		$user, $passwd, { PrintError => 0, RaiseError => 1, AutoCommit => 0 }
+		$user, $passwd, { PrintError => 0, RaiseError => 1 }
 	);
 
 	$dbh->{'mysql_enable_utf8mb4'} = 1;
