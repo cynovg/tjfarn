@@ -27,7 +27,8 @@ MYSQL
         }
     );
 
-    my $res = $tns->process(
+    my $res;
+    $res = $tns->process(
         sub {
             my ( $dbh, $user_id ) = @_;
             my $rc = $dbh->do( <<MYSQL, undef, $user_id, !!1 );
@@ -40,9 +41,10 @@ MYSQL
             return $rc;
         },
         $uid
-    );
+    ) if $uid;
 
-    return $res ? $tns->finish : $tns->rollback;
+    $tns->finish if $res;
+    return $res;
 }
 
 1;

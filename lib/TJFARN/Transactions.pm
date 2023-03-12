@@ -7,8 +7,9 @@ use Try::Tiny;
 use TJFARN::Utils qw(get_dbh);
 
 const my %status => (
-    started  => 1,
-    finished => 2,
+    empty   => 0,
+    started => 1,
+    error   => 2,
 );
 
 sub new {
@@ -21,10 +22,13 @@ sub new {
 sub process {
     my ( $self, $code_ref, @args ) = @_;
 
-    if ( $self->{'_status'} != $status{'started'} ) {
+    if ( $self->{'_status'} == $status{'empty'} ) {
         $self->{'_status'} = $status{'started'};
         $self->{'_dbh'}->{'AutoCommit'} = 1;
         $self->{'_dbh'}->begin_work;
+    }
+    elsif ( $self->{'_status'} == $status{'error'} ) {
+        return;
     }
 
     my $result;
@@ -32,7 +36,7 @@ sub process {
         $result = $code_ref->( $self->{'_dbh'}, @args );
     }
     catch {
-        $self->{'_status'} = $status{'finished'};
+        $self->{'_status'} = $status{'error'};
         $self->{'_dbh'}->rollback;
     };
 
@@ -43,14 +47,14 @@ sub finish {
     my ($self) = @_;
 
     $self->{'_dbh'}->commit;
-    $self->{'_status'} = $status{'finished'};
+    $self->{'_status'} = $status{'empty'};
 
     return;
 }
 
 sub DESTROY {
     my ($self) = @_;
-    $self->{'_dbh'}->rollback if $self->{"_status"} != $status{'finished'};
+    $self->{'_dbh'}->rollback if $self->{"_status"} == $status{'started'};
     $self->{'_dbh'}->disconnect;
 }
 

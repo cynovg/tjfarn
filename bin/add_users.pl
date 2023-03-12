@@ -11,7 +11,9 @@ use TJFARN::Process qw(add_user);
 sub main {
     my (@ARGV) = @_;
 
-    add_user($_) for qw/any beny raba/;
+    for (qw/any beny raba/) {
+        add_user($_) or die "Cant add user $_\n";
+    }
 }
 
 main(@ARGV);
