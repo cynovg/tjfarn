@@ -23,9 +23,9 @@ sub process {
     my ( $self, $code_ref, @args ) = @_;
 
     if ( $self->{'_status'} == $status{'empty'} ) {
-        $self->{'_status'} = $status{'started'};
         $self->{'_dbh'}->{'AutoCommit'} = 1;
-        $self->{'_dbh'}->begin_work;
+        $self->{'_dbh'}->begin_work or return;
+        $self->{'_status'} = $status{'started'};
     }
     elsif ( $self->{'_status'} == $status{'error'} ) {
         return;
