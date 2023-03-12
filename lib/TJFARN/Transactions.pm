@@ -22,16 +22,16 @@ sub new {
 sub process {
     my ( $self, $code_ref, @args ) = @_;
 
+	my $result;
     if ( $self->{'_status'} == $status{'empty'} ) {
         $self->{'_dbh'}->{'AutoCommit'} = 1;
-        $self->{'_dbh'}->begin_work or return;
+        $self->{'_dbh'}->begin_work or return $result;
         $self->{'_status'} = $status{'started'};
     }
     elsif ( $self->{'_status'} == $status{'error'} ) {
-        return;
+        return $result;
     }
 
-    my $result;
     try {
         $result = $code_ref->( $self->{'_dbh'}, @args );
     }

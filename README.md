@@ -27,3 +27,4 @@ CREATE TABLE `log` (
     KEY `uid` (`user_id`)
 );
 ```
+
