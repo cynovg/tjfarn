@@ -9,35 +9,40 @@ our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(add_user);
 
 sub add_user {
-	my ($user) = @_;
+    my ($user) = @_;
 
-	my $tns = TJFARN::Transactions->new();
+    my $tns = TJFARN::Transactions->new();
 
-	my $uid = $tns->process( sub {
-		my ($dbh) = @_;
-		my $rc = $dbh->do(<<MYSQL, undef, $user, !!1);
+    my $uid = $tns->process(
+        sub {
+            my ($dbh) = @_;
+            my $rc = $dbh->do( <<MYSQL, undef, $user, !!1 );
 INSERT INTO
 	`user`
 	(`name`, `status`)
 	VALUES
 	(?, ?)
 MYSQL
-		return $rc ? $dbh->last_insert_id : undef;
-	});
+            return $rc ? $dbh->last_insert_id : undef;
+        }
+    );
 
-	my $res = $tns->process( sub {
-		my ($dbh, $user_id) = @_;
-		my $rc = $dbh->do(<<MYSQL, undef, $user_id, !!1);
+    my $res = $tns->process(
+        sub {
+            my ( $dbh, $user_id ) = @_;
+            my $rc = $dbh->do( <<MYSQL, undef, $user_id, !!1 );
 INSERT INTO
 	`log`
-(`user_id`)
+	(`user_id`)
 VALUES
 	(?)
 MYSQL
-		return $rc;
-	}, $uid );
+            return $rc;
+        },
+        $uid
+    );
 
-	return $res ? $tns->finish : $tns->rollback;
+    return $res ? $tns->finish : $tns->rollback;
 }
 
 1;

@@ -9,9 +9,9 @@ use lib "$Bin/../lib/";
 use TJFARN::Process qw(add_user);
 
 sub main {
-	my (@ARGV) = @_;
+    my (@ARGV) = @_;
 
-	add_user($_) for qw/any beny raba/;
+    add_user($_) for qw/any beny raba/;
 }
 
 main(@ARGV);

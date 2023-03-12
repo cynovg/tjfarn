@@ -7,50 +7,51 @@ use Try::Tiny;
 use TJFARN::Utils qw(get_dbh);
 
 const my %status => (
-	started  => 1,
-	finished => 2,
+    started  => 1,
+    finished => 2,
 );
 
 sub new {
-	return bless {
-		_dbh    => get_dbh(),
-		_status => 0,
-	} => shift;
+    return bless {
+        _dbh    => get_dbh(),
+        _status => 0,
+    } => shift;
 }
 
 sub process {
-	my ($self, $code_ref, @args) = @_;
+    my ( $self, $code_ref, @args ) = @_;
 
-	if ($self->{'_status'} != $status{'started'}) {
-		$self->{'_status'} = $status{'started'};
-		$self->{'_dbh'}->{'AutoCommit'} = 1;
-		$self->{'_dbh'}->begin_work;
-	}
+    if ( $self->{'_status'} != $status{'started'} ) {
+        $self->{'_status'} = $status{'started'};
+        $self->{'_dbh'}->{'AutoCommit'} = 1;
+        $self->{'_dbh'}->begin_work;
+    }
 
-	my $result;
-	try {
-		$result = $code_ref->($self->{'_dbh'}, @args);
-	} catch {
-		$self->{'_status'} = $status{'finished'};
-		$self->{'_dbh'}->rollback;
-	};
+    my $result;
+    try {
+        $result = $code_ref->( $self->{'_dbh'}, @args );
+    }
+    catch {
+        $self->{'_status'} = $status{'finished'};
+        $self->{'_dbh'}->rollback;
+    };
 
-	return $result;
+    return $result;
 }
 
 sub finish {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	$self->{'_dbh'}->commit;
-	$self->{'_status'} = $status{'finished'};
+    $self->{'_dbh'}->commit;
+    $self->{'_status'} = $status{'finished'};
 
-	return;
+    return;
 }
 
 sub DESTROY {
-	my ($self) = @_;
-	$self->{'_dbh'}->rollback if $self->{"_status"} != $status{'finished'};
-	$self->{'_dbh'}->disconnect;
+    my ($self) = @_;
+    $self->{'_dbh'}->rollback if $self->{"_status"} != $status{'finished'};
+    $self->{'_dbh'}->disconnect;
 }
 
 1;
