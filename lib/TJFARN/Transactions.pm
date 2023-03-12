@@ -7,7 +7,6 @@ use Try::Tiny;
 use TJFARN::Utils qw(get_dbh);
 
 const my %status => (
-	empty    => 0,
 	started  => 1,
 	finished => 2,
 );
